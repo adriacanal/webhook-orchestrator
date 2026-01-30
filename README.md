@@ -2,8 +2,8 @@
 
 [![CI](https://github.com/adriacanal/webhook-orchestrator/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/adriacanal/webhook-orchestrator/actions/workflows/ci.yml?query=branch%3Adevelop)
 
-Webhook orchestration service built with Laravel.  
-It ingests third-party webhooks, enforces idempotency, normalizes events and processes them asynchronously.  
+Webhook orchestration service built with Laravel.
+It ingests third-party webhooks, enforces idempotency, normalizes events and processes them asynchronously.
 Designed with Docker (Laravel Sail), GitHub Actions CI and an AWS-ready architecture.
 
 ---
@@ -46,6 +46,12 @@ The system follows an **ingest → persist → process** flow, where webhook ing
 
 ### Requirements
 - Docker
+
+### Ports (local)
+If ports 80/3306/6379 are already taken on your host, configure:
+- APP_PORT (default 80)
+- FORWARD_DB_PORT (default 3306)
+- FORWARD_REDIS_PORT (default 6379)
 
 ### Setup
 ```bash
