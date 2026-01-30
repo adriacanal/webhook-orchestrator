@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('webhook_events', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('uuid');
 
             $table->string('provider');                 // stripe, shopify, typeform, etc.
             $table->string('provider_event_id');        // id original del proveïdor
