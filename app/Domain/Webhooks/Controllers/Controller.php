@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domain\Webhooks\Controllers;
 
 abstract class Controller
 {
