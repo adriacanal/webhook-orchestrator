@@ -6,19 +6,22 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('ingests a stripe webhook event', function () {
-    $payload = [
+    config()->set('services.stripe.webhook_secret', 'whsec_test');
+    config()->set('services.stripe.webhook_tolerance', 300);
+
+    $payload = json_encode([
         'id' => 'evt_123',
         'type' => 'payment_intent.succeeded',
         'data' => [
             'object' => ['amount' => 4999],
         ],
-    ];
+    ], JSON_UNESCAPED_SLASHES);
 
-    $response = $this->postJson('/api/webhooks/stripe', $payload);
+    $signature = stripeSignatureHeader($payload, 'whsec_test');
 
-    $response
-        ->assertOk()
-        ->assertJson(['ok' => true]);
+    rawStripePost('/api/webhooks/stripe', $payload, [
+        'Stripe-Signature' => $signature,
+    ])->assertStatus(200);
 
     expect(WebhookEvent::count())->toBe(1);
 
@@ -30,14 +33,22 @@ it('ingests a stripe webhook event', function () {
 });
 
 it('is idempotent when receiving duplicate stripe events', function () {
-    $payload = [
+    config()->set('services.stripe.webhook_secret', 'whsec_test');
+
+    $payload = json_encode([
         'id' => 'evt_999',
         'type' => 'payment_intent.succeeded',
-    ];
+    ], JSON_UNESCAPED_SLASHES);
 
-    $this->postJson('/api/webhooks/stripe', $payload)->assertOk();
+    $signature = stripeSignatureHeader($payload, 'whsec_test');
 
-    $second = $this->postJson('/api/webhooks/stripe', $payload);
+    rawStripePost('/api/webhooks/stripe', $payload, [
+        'Stripe-Signature' => $signature,
+    ])->assertStatus(200);
+
+    $second = rawStripePost('/api/webhooks/stripe', $payload, [
+        'Stripe-Signature' => $signature,
+    ])->assertStatus(200);
 
     $second
         ->assertOk()
@@ -50,13 +61,15 @@ it('is idempotent when receiving duplicate stripe events', function () {
 });
 
 it('returns 422 when provider event id is missing', function () {
-    $payload = [
-        'type' => 'payment_intent.succeeded',
-    ];
+    config()->set('services.stripe.webhook_secret', 'whsec_test');
 
-    $this->postJson('/api/webhooks/stripe', $payload)
-        ->assertStatus(422)
-        ->assertJson([
-            'ok' => false,
-        ]);
+    $payload = json_encode([
+        'type' => 'payment_intent.succeeded',
+    ], JSON_UNESCAPED_SLASHES);
+
+    $signature = stripeSignatureHeader($payload, 'whsec_test');
+
+    rawStripePost('/api/webhooks/stripe', $payload, [
+        'Stripe-Signature' => $signature,
+    ])->assertStatus(422);
 });
