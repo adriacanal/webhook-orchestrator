@@ -14,7 +14,7 @@ if (! function_exists('rawStripePost')) {
     {
         $server = array_merge([
             'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT'  => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
         ], arrayToServerHeaders($headers));
 
         return test()->call('POST', $uri, [], [], [], $server, $rawBody);
@@ -29,7 +29,7 @@ if (! function_exists('stripeSignatureHeader')) {
     {
         $timestamp ??= time();
 
-        $signedPayload = $timestamp . '.' . $payload;
+        $signedPayload = $timestamp.'.'.$payload;
         $signature = hash_hmac('sha256', $signedPayload, $secret);
 
         return "t={$timestamp},v1={$signature}";
@@ -48,7 +48,7 @@ if (! function_exists('arrayToServerHeaders')) {
         $server = [];
 
         foreach ($headers as $name => $value) {
-            $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+            $key = 'HTTP_'.strtoupper(str_replace('-', '_', $name));
             $server[$key] = $value;
         }
 

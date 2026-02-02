@@ -46,4 +46,4 @@ function something()
     // ..
 }
 
-require_once __DIR__ . '/Support/StripeWebhookTestHelpers.php';
+require_once __DIR__.'/Support/StripeWebhookTestHelpers.php';
