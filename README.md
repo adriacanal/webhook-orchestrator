@@ -42,6 +42,22 @@ The system follows an **ingest → persist → process** flow, where webhook ing
 
 ---
 
+## Stripe Webhooks
+
+Stripe webhooks are ingested through a dedicated HTTP endpoint protected by a middleware that verifies the Stripe-Signature header using Stripe’s official SDK.
+
+### Flow
+
+1. Incoming webhook requests are validated by a middleware using Stripe\Webhook::constructEvent.
+2. Invalid signatures or malformed payloads are rejected before reaching the application layer.
+3. Valid events are processed by the webhook handler and stored idempotently.
+
+### Testing
+
+Webhook requests are tested using raw request bodies and real HMAC signatures to accurately reproduce Stripe’s signing mechanism.
+
+---
+
 ## Local development
 
 ### Requirements
@@ -64,7 +80,9 @@ cp .env.example .env
 
 Planned improvements:
 
-- Webhook signature verification (HMAC)
+- [x] Webhook signature verification (HMAC)
+- [x] Webhook ingestion
+- [x] Idempotent processing for duplicate webhooks
 - Asynchronous processing via queue workers
 - Event normalization layer
 - Routing rules and delivery tracking
